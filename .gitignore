@@ -1,0 +1,34 @@
+# ⚠️ 含密碼，絕對不能進版控
+config.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# TypeScript 編譯輸出
+dist/
+build/
+*.tsbuildinfo
+
+# 工具產出
+changes.json
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 環境變數
+.env
+.env.local
+.env.*.local

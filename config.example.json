@@ -1,0 +1,13 @@
+{
+  "bitbucket": {
+    "baseUrl": "https://bitbucket.your-company.com",
+    "username": "your-username",
+    "password": "your-password",
+    "projectKey": "YOUR_PROJECT_KEY"
+  },
+  "repos": [
+    "MyFrontendCode",
+    "MyBackendCode"
+  ],
+  "baseBranch": "master"
+}
