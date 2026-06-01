@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+dim-probe-result.txt
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

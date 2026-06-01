@@ -1,0 +1,23 @@
+{
+  "name": "dimensions-probe",
+  "version": "1.0.0",
+  "description": "調查 Dimensions CM 命令列 (dmcli) 環境：偵測安裝位置、版本、連線、可用指令清單",
+  "main": "dist/index.js",
+  "bin": {
+    "dim-probe": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}
