@@ -54,6 +54,32 @@ npm run start -- diff --release release/20260523 --output changes.json
 npm run start -- diff --release release/20260523 --output changes.json --no-table
 ```
 
+### 匯出實際檔案內容
+
+把本次 release 實際有**新增 / 修改 / 更名**的檔案內容，從 release 分支抓下來，
+保留 repo 與目錄結構存到本地資料夾（可直接拿去覆蓋 Dimension workarea）。
+
+```bash
+npm run start -- export --release release/20260523 --dir export-20260523
+```
+
+匯出對象：
+- `[M]` Modified（修改）
+- `[A]` Added（新增）
+- `[R→新]` Renamed 新檔名
+
+不含：`[⚠️R→舊]` 更名前舊檔、`[⚠️D]` 刪除檔（這些沒有實際內容要搬）
+
+輸出結構：
+```
+export-20260523/
+├── MyFrontendCode/
+│   └── src/components/Button.vue
+├── MyBackendCode/
+│   └── src/main/java/com/example/Service.java
+└── manifest.json          ← 本次匯出清單（含成功/失敗記錄）
+```
+
 ---
 
 ## 輸出說明

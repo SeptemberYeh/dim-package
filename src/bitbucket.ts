@@ -3,7 +3,7 @@ import { BitbucketConfig } from './config';
 
 /**
  * Bitbucket Server 的 changes API 回傳項目
- * 參考：GET /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/compare/changes
+ * 參考：GET /rest/api/1.0/projects/{projectKey}/repos/{repositorySlug}/changes
  */
 export interface BitbucketChange {
   path: {
@@ -45,25 +45,28 @@ export class BitbucketClient {
   /**
    * 比對兩個 ref 之間的檔案變更
    * @param repoSlug repo 名稱
-   * @param fromRef 來源 ref（例如 release/20260523）
-   * @param toRef 目標 ref（例如 master）
+   * @param sinceRef 起點 ref（基準，例如 master）
+   * @param untilRef 終點 ref（要上線的，例如 release/20260523）
    *
-   * 注意：Bitbucket Server compare/changes API 回傳的是
-   *   「from 相對於 to 的變更」
-   * 所以要查「master → release 的變更」，要設定：
-   *   from = release分支, to = master
+   * 語義對應 git diff A B：
+   *   since = A（起點，master）
+   *   until = B（終點，release 分支）
+   *
+   * 即「從 master 到 release 分支多了哪些變更」
+   *
+   * 若 ref 不存在，API 會回 404，呼叫端應 catch 處理
    */
-  async getChanges(repoSlug: string, fromRef: string, toRef: string): Promise<BitbucketChange[]> {
+  async getChanges(repoSlug: string, sinceRef: string, untilRef: string): Promise<BitbucketChange[]> {
     const allChanges: BitbucketChange[] = [];
     let start = 0;
     const limit = 1000;
 
     while (true) {
-      const url = `/rest/api/1.0/projects/${this.projectKey}/repos/${repoSlug}/compare/changes`;
+      const url = `/rest/api/1.0/projects/${this.projectKey}/repos/${repoSlug}/changes`;
       const response = await this.http.get<ChangesResponse>(url, {
         params: {
-          from: fromRef,
-          to: toRef,
+          since: sinceRef,
+          until: untilRef,
           start,
           limit,
         },
@@ -82,19 +85,29 @@ export class BitbucketClient {
   }
 
   /**
-   * 檢查 ref 是否存在
+   * 抓取指定 ref 上某個檔案的原始內容（位元組）
+   * @param repoSlug repo 名稱
+   * @param filePath 檔案路徑（repo 內相對路徑）
+   * @param atRef 要抓取的 ref（例如 release/20260523）
+   *
+   * 使用 raw API：
+   *   GET /rest/api/1.0/projects/{key}/repos/{slug}/raw/{path}?at={ref}
+   *
+   * 以 arraybuffer 取得，保留原始 bytes（避免二進位檔被文字編碼破壞）
    */
-  async branchExists(repoSlug: string, branchName: string): Promise<boolean> {
-    try {
-      const url = `/rest/api/1.0/projects/${this.projectKey}/repos/${repoSlug}/branches`;
-      const response = await this.http.get(url, {
-        params: { filterText: branchName, limit: 100 },
-      });
-      const branches = response.data.values || [];
-      // displayId 是分支名稱（不含 refs/heads/ 前綴）
-      return branches.some((b: any) => b.displayId === branchName);
-    } catch {
-      return false;
-    }
+  async getRawFile(repoSlug: string, filePath: string, atRef: string): Promise<Buffer> {
+    // path 可能含多層目錄，需逐段編碼但保留斜線
+    const encodedPath = filePath
+      .split('/')
+      .map(seg => encodeURIComponent(seg))
+      .join('/');
+
+    const url = `/rest/api/1.0/projects/${this.projectKey}/repos/${repoSlug}/raw/${encodedPath}`;
+    const response = await this.http.get(url, {
+      params: { at: atRef },
+      responseType: 'arraybuffer',
+    });
+
+    return Buffer.from(response.data);
   }
 }

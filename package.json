@@ -1,6 +1,6 @@
 {
   "name": "release-diff-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "比對 Bitbucket Server 上 master 與 release 分支差異，產出上線檔案清單",
   "main": "dist/index.js",
   "bin": {
