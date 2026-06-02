@@ -60,8 +60,15 @@ npm run start -- diff --release release/20260523 --output changes.json --no-tabl
 保留 repo 與目錄結構存到本地資料夾（可直接拿去覆蓋 Dimension workarea）。
 
 ```bash
-npm run start -- export --release release/20260523 --dir export-20260523
+npm run start -- export --release release/20260523
 ```
+
+匯出目錄一律放在 `export/` 底下：
+- 未指定 `--dir`：自動用 release 名稱當子資料夾，如 `export/release-20260523`
+  （分支名稱裡的 `/` 會換成 `-`）
+- 指定 `--dir foo`：放到 `export/foo`
+
+這樣 `.gitignore` 一條 `export/` 就能排除所有匯出內容，不會進版控。
 
 匯出對象：
 - `[M]` Modified（修改）
@@ -72,7 +79,7 @@ npm run start -- export --release release/20260523 --dir export-20260523
 
 輸出結構：
 ```
-export-20260523/
+export/release-20260523/
 ├── MyFrontendCode/
 │   └── src/components/Button.vue
 ├── MyBackendCode/

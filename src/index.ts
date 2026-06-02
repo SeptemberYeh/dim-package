@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import chalk from 'chalk';
+import * as path from 'path';
 import { loadConfig, AppConfig } from './config';
 import { BitbucketClient } from './bitbucket';
 import { classifyChanges, ClassifiedChange } from './diff';
@@ -110,17 +111,33 @@ program
 // ============================================================
 program
   .command('export')
-  .description('匯出本次 release 實際有新增/修改/更名的檔案內容到本地資料夾')
+  .description('匯出本次 release 實際有新增/修改/更名的檔案內容到 export/ 資料夾底下')
   .requiredOption('-r, --release <branch>', '本次 release 分支名稱 (e.g. release/20260523)')
   .option('-c, --config <path>', '設定檔路徑', 'config.json')
-  .option('-d, --dir <path>', '匯出目錄', 'export')
+  .option('-d, --dir <path>', '匯出目錄（預設 export/<release名稱>，會自動放在 export/ 底下）')
   .option('--no-table', '不在 terminal 顯示變更表格')
   .action(async (opts) => {
     try {
       const config = loadConfig(opts.config);
       const client = new BitbucketClient(config.bitbucket);
 
+      // 決定匯出目錄：
+      //  - 未指定 --dir：用 release 名稱當子資料夾，放在 export/ 底下
+      //    （把 release 名稱裡的 / 換成 - ，避免產生多層目錄，例如 release/20260523 → release-20260523）
+      //  - 有指定 --dir：若不是以 export 開頭，自動加到 export/ 底下
+      let outDir: string;
+      if (opts.dir) {
+        const normalized = opts.dir.replace(/\\/g, '/');
+        outDir = normalized.startsWith('export/') || normalized === 'export'
+          ? opts.dir
+          : path.join('export', opts.dir);
+      } else {
+        const safeName = opts.release.replace(/[/\\]/g, '-');
+        outDir = path.join('export', safeName);
+      }
+
       printHeader(config, opts.release);
+      console.log(chalk.gray(`  匯出目錄：${path.resolve(outDir)}\n`));
 
       // 1. 先抓變更清單
       const allChanges = await collectChanges(client, config, opts.release);
@@ -131,11 +148,11 @@ program
       printSummary(allChanges);
 
       // 2. 匯出實際檔案內容（M + A + R_NEW）
-      const results = await exportChangedFiles(client, allChanges, opts.release, opts.dir);
+      const results = await exportChangedFiles(client, allChanges, opts.release, outDir);
 
       // 3. 輸出結果與 manifest
-      printExportSummary(results, opts.dir);
-      saveManifest(results, opts.release, opts.dir);
+      printExportSummary(results, outDir);
+      saveManifest(results, opts.release, outDir);
 
       // 若有失敗，以非零碼結束（方便 CI 判斷）
       const hasFailed = results.some(r => r.status === 'failed');
