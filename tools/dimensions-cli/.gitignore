@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+dim-config.json
+dim-release-*.log
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

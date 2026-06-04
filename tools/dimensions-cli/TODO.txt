@@ -1,0 +1,62 @@
+================================================================
+dimensions-cli 待辦清單（逐檔 + DEPLOY.DIM 路線）
+================================================================
+
+【已確認】所有 dmcli 指令語法皆由 help 確認：
+  ✅ RICD（relate）  ✅ EI（checkout）  ✅ RI（checkin）
+  ✅ CI（deliver）   ✅ AC（變更狀態）
+
+【流程】Relate → 變更狀態 → 覆核 → Checkout → 覆蓋 → Checkin → Deliver
+  - relate 對象：修改檔 + DEPLOY.DIM（新增檔不 relate）
+  - DEPLOY.DIM：prepare 產生，跟修改檔一起跑完整流程
+
+================================================================
+待確認項目（需實測或環境資訊）
+================================================================
+
+□ 待辦 1：item-spec 定位（/FILENAME 格式）  ★最重要
+  item-id 含系統自動 ID，故用「product 前綴 + /FILENAME」定位。
+  /FILENAME 的值由 config.filenameMode 控制：
+    'relative' → src/components/Button.vue（預設）
+    'basename' → Button.vue
+    'repoPath' → MyFrontendCode/src/components/Button.vue
+  驗證：先對「一個修改檔」跑 relate-status，看 RICD/EI 是否成功定位。
+        失敗就換 filenameMode 再試。
+
+□ 待辦 2：DEPLOY.DIM 的 /FILENAME
+  目前 DEPLOY.DIM 用 fileNameValue = "DEPLOY.DIM"（VOB 根，相對路徑即檔名）。
+  若你環境定位 DEPLOY.DIM 需要不同寫法，於 manifest.ts makeDeployDimFile 調整。
+
+□ 待辦 3：config 必填值
+  □ targetStatus  變更狀態目標（如 "CRB APPROVED"）
+  □ partSpec      CI 新增檔的 part-spec
+  □ workset       project/stream
+  □ vobName       VOB 名稱
+  □ dimHostIp     DEPLOY.DIM 的 DIM 主機 IP
+  □ buildHostIp   DEPLOY.DIM 的編譯機 IP
+  □ buildEnv      windows 或 K8S
+
+□ 待辦 4：relateType 確認
+  預設 IN_RESPONSE_TO。去 GUI 確認現有關聯類型，若是 Affected 改 config。
+
+□ 待辦 5：DEPLOY.DIM 路徑欄位格式
+  目前 DIM路徑欄 = workarea 完整資料夾路徑（含 workareaRoot）。
+  編譯機路徑 = D:\{VOB}\{相對} 或 root\K8S\{VOB}\{相對}。
+  □ 跟現有 DEPLOY.DIM 範例對照，確認斜線方向、是否含碟符等細節。
+
+□ 待辦 6：EI /OVERWRITE、RI /NOCANCEL_UNCHANGED 行為
+  測試環境跑一次確認符合預期。
+
+□ 待辦 7：成功/失敗判斷（dmcli.ts）
+  目前用 "Operation completed"/"(SUCCESS)" 判成功。實測校準。
+
+================================================================
+驗證順序
+================================================================
+1. 填 dim-config.json
+2. test-conn   測連線
+3. prepare     覆蓋 workarea + 產生 DEPLOY.DIM（先檢查 DEPLOY.DIM 內容對不對）
+4. relate-status --yes   先用「少量檔案」測 relate 定位是否成功
+5. 覆核
+6. finish --yes
+7. 全程在測試環境驗證無誤後才上正式

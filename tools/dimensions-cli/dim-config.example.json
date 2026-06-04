@@ -1,0 +1,24 @@
+{
+  "dmcliPath": "C:\\Program Files\\Serena\\Dimensions 14.3\\CM\\prog\\dmcli.exe",
+  "username": "your-username",
+  "host": "your-dimensions-host",
+  "dbname": "cm_typical",
+  "dsn": "dim14",
+
+  "requestId": "MYPROD_CR_123",
+  "workset": "MYVOB:MY_PROJECT",
+  "comment": "release/20260523",
+  "targetStatus": "TODO_填入你們流程的狀態字串",
+  "relateType": "IN_RESPONSE_TO",
+  "partSpec": "MYVOB:MYPART.A;1",
+  "defaultFormat": "",
+  "filenameMode": "relative",
+
+  "workareaRoot": "D:\\Dimensions\\MYVOB",
+  "exportDir": "..\\release-diff-cli\\export\\release-20260523",
+
+  "vobName": "MYVOB",
+  "dimHostIp": "192.168.1.50",
+  "buildHostIp": "192.168.1.100",
+  "buildEnv": "windows"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "dimensions-cli",
+  "version": "0.1.0",
+  "description": "自動化 Dimensions CM 上線流程：relate / checkout / 覆蓋 workarea / checkin / deliver / 變更狀態 / 產出 Deploy.dim",
+  "main": "dist/index.js",
+  "bin": {
+    "dim-release": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}
